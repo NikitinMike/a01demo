@@ -57,6 +57,9 @@ public class A01demoApplication {
                 .limit(listSize).sorted(Comparator.comparing(Products::getProductId))
                 .collect(Collectors.toList());
 
+        // ordering list
+        productsList.sort(Comparator.comparing(Products::getPrice));
+
         // output to file
         try (PrintWriter pw = new PrintWriter(new File("data.csv"))) {
             productsList.forEach(p -> pw.println(p.csvString()));
