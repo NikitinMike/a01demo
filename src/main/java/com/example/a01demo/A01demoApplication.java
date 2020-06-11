@@ -1,14 +1,12 @@
 package com.example.a01demo;
 
 import au.com.bytecode.opencsv.CSVReader;
-import lombok.SneakyThrows;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.apache.commons.io.FileUtils;
 
 @SpringBootApplication
 public class A01demoApplication {
@@ -22,29 +20,19 @@ public class A01demoApplication {
     // goods limit
     private static int limit = 20;
     // trace points every
-    private static int tracePoint = 10000;
+    private static int tracePoint = 100000;
 
     // global ids counter
     private static Map<Integer, TreeSet<Products>> map = new HashMap<>();
 
     public static void main(String[] args) {
 
-        // creating CSV data sources (may skip)
-        File tmpDir = new File(TEMP_DIRECTORY, "CSV");
-        try {
-            FileUtils.forceDelete(tmpDir);
-        } catch (IOException e) {
-            System.out.println("First Run");
-        }
-        tmpDir.mkdir();
-        makeCSVFilesData(pathCSV, 9, 99999, 100, 99.99F);
-
         // read sources data files
         for (String path : listFiles(pathCSV))
             try {
                 readCSVDataFile(path);
             } catch (IOException e) {
-                System.out.println("File error"+path);
+                System.out.println("File error" + path);
             }
 
         // collect results by ids
@@ -95,35 +83,6 @@ public class A01demoApplication {
                 map.get(id).remove(map.get(id).last());
         }
 
-    }
-
-    @SneakyThrows
-    static void makeCSVFilesData(String path, int files, int rows, int maxId, float maxPrice) {
-
-        Random random = new Random();
-
-        String[] state = {"BLUE", "GREEN", "MAGENTA", "RED", "CYAN"};
-        String[] cond = {"dog", "horse", "cat", "bird", "men"};
-
-        System.out.println("Create DataFiles ");
-        for (int j = 1; j <= files; j++) {
-            File csvOutputFile = new File(String.format(path + "/data%04d.csv", j));
-            System.out.print(j);
-            try (PrintWriter pw = new PrintWriter(csvOutputFile)) {
-                int n=0;
-                for (int i = 1; i <= rows; i++) {
-                    if (++n % tracePoint == 0) System.out.print(".");
-                    pw.println(
-                            new Products(random.nextInt(maxId) + maxId
-                                    , String.format("%d", i)
-                                    , state[random.nextInt(state.length)]
-                                    , cond[random.nextInt(cond.length)]
-                                    , random.nextFloat() * maxPrice
-                            ).csvString()
-                    );
-                }
-            }
-        }
     }
 
     public static Set<String> listFiles(String dir) {
