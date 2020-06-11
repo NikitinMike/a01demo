@@ -1,9 +1,7 @@
-# a01demo
+# Test task a01demo
 
 # mvn install
 # java -jar target/a01demo-0.0.1-SNAPSHOT.jar
-
-Test task
 
 Initial Data:
 Several CSV files. The number of files can be quite large (up to 100,000).
