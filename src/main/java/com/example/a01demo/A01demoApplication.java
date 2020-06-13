@@ -30,14 +30,14 @@ public class A01demoApplication {
         // read sources data files
         for (String path : listFiles(pathCSV))
             try {
-                readCSVDataFile(path);
+                readCSVDataFile(path,limit);
             } catch (IOException e) {
                 System.out.println("File error" + path);
             }
 
         // collect results by ids
         TreeSet<Products> result = new TreeSet();
-        map.forEach((key, data) -> result.addAll(data));
+        map.forEach((key, data) -> result.addAll(data.stream().limit(limit).collect(Collectors.toList())));
 
         // limiting entries list
         List<Products> productsList = result.stream()
@@ -57,15 +57,10 @@ public class A01demoApplication {
         System.out.println("\nSaved " + productsList.size());
     }
 
-    static void readCSVDataFile(String fileName) throws IOException {
+    static void readCSVDataFile(String fileName,int limit) throws IOException {
 
         System.out.printf("\nRead [%s] ", fileName);
-        CSVReader csvReader = null;
-        try {
-            csvReader = new CSVReader(new FileReader(fileName));
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
+        CSVReader csvReader = new CSVReader(new FileReader(fileName));
 
         int n = 0;
         String[] nextLine;
