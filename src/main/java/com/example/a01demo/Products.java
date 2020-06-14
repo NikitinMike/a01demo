@@ -37,8 +37,7 @@ public class Products implements Comparable<Products>{
 
     @Override
     public int compareTo(Products product) {
-        if (productId.compareTo(product.productId)!=0)
-            return productId.compareTo(product.productId);
-        return price.compareTo(product.price);
+        int compare = productId.compareTo(product.productId);
+        return compare==0? price.compareTo(product.price) : compare;
     }
 }
