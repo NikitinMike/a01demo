@@ -9,8 +9,11 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Date;
 import java.util.Random;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
-@SpringBootApplication
+//@SpringBootApplication
 public class A01demoDataMake {
 
     // root path
@@ -31,7 +34,11 @@ public class A01demoDataMake {
             System.out.println("First Run");
         }
         tmpDir.mkdir();
-        makeCSVFilesData(pathCSV, 9, 999999, 1000, 99.99F);
+
+
+        makeCSVFilesData(pathCSV, 99, 999999, 100, 99.99F);
+
+
         System.out.println("\nFinished " + new Date());
     }
 
@@ -44,24 +51,42 @@ public class A01demoDataMake {
         String[] cond = {"dog", "horse", "cat", "bird", "men"};
 
         System.out.println("Create DataFiles ");
+        ExecutorService service = Executors.newFixedThreadPool(10);
+
         for (int j = 1; j <= files; j++) {
-            File csvOutputFile = new File(String.format(path + "/data%04d.csv", j));
-            System.out.print(j);
-            try (PrintWriter pw = new PrintWriter(csvOutputFile)) {
-                int n = 0;
-                for (int i = 1; i <= rows; i++) {
-                    if (++n % tracePoint == 0) System.out.print(".");
-                    pw.println(
-                            new Products(random.nextInt(maxId) + maxId
-                                    , String.format("%d", i)
-                                    , state[random.nextInt(state.length)]
-                                    , cond[random.nextInt(cond.length)]
-                                    , random.nextFloat() * maxPrice
-                            ).csvString()
-                    );
+            int finalJ = j;
+            service.execute(() -> {
+                try  {
+                    File csvOutputFile = new File(String.format(path + "/data%04d.csv", finalJ));
+                    System.out.print(finalJ+" ");
+                    try (PrintWriter pw = new PrintWriter(csvOutputFile)) {
+                        int n = 0;
+                        for (int i = 1; i <= rows; i++) {
+                            if (++n % tracePoint == 0) System.out.print(".");
+                            pw.println(
+                                    new Products(random.nextInt(maxId) + maxId
+                                            , String.format("%d", i)
+                                            , state[random.nextInt(state.length)]
+                                            , cond[random.nextInt(cond.length)]
+                                            , random.nextFloat() * maxPrice
+                                    ).csvString()
+                            );
+                        }
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-            }
+            });
         }
+
+        service.shutdown();
+        // Ждем завершения выполнения потоков не более 10 минут.
+        try {
+            service.awaitTermination(10, TimeUnit.MINUTES);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
     }
 
 }
