@@ -73,9 +73,12 @@ public class A01demoApplication {
             );
             if (!map.containsKey(id))
                 map.put(id, new TreeSet<>());
-            map.get(id).add(product);
-            if (map.get(id).size() > limit)
-                map.get(id).remove(map.get(id).last());
+            TreeSet<Products> productSet = map.get(id);
+            if (productSet.size() >= limit)
+                if(product.getPrice()<productSet.last().getPrice())
+                    productSet.remove(productSet.last());
+                else continue;
+            productSet.add(product);
         }
 
     }
